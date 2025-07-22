@@ -25,7 +25,7 @@ Betavae_Vqvae_PixelCnn/
 ├── evaluate.py               # Evaluation script for VAEs
 ├── evaluate_pixel_cnn.py     # Evaluation script for PixelCNN
 ├── utils.py                  # Utility functions
-├── samples					  # Sample figures
+├── samples                   # Sample figures
 ```
 
 ## Installation
@@ -159,7 +159,7 @@ The standard VAE optimizes the evidence lower bound (ELBO):
 标准 VAE 优化证据下界（ELBO）：
 
 $$
-\max_{\theta,\phi} \; \mathbb{E}_{q_\phi(z|x)} [\log p_\theta(x|z)] - D_{KL}(q_\phi(z|x)\|p(z))
+\max_{\theta,\phi} \mathbb{E}{q\phi(z|x)} [\log p_\theta(x|z)] - D_{KL}(q_\phi(z|x)|p(z))$
 $$
 
 In β-VAE, the KL term is weighted by β to encourage disentanglement:  
@@ -176,14 +176,14 @@ $$
 \mathcal{L} = \text{Reconstruction Loss} + \gamma \cdot | D_{KL}(q_\phi(z|x)\|p(z)) - C |
 $$
 
-And gradually increase \( C \) to control capacity, so KL divergence approaches the target.  
-通过逐渐增加 \( C \) 来控制容量，使 KL 散度逐步接近目标。
+And gradually increase ( C ) to control capacity, so KL divergence approaches the target.  
+通过逐渐增加 ( C ) 来控制容量，使 KL 散度逐步接近目标。
 
 ## Implementation Details / 实现细节
 
 - **Encoder / Decoder**: convolutional encoder and transposed convolutional decoder with BatchNorm and LeakyReLU.  
-- **Latent Space**: fully connected layers outputting \( $\mu$ \) and \( $\log\sigma^2$ \).  
-- **Reparameterization**: sampling latent \( z \) from \( $\mu$, $\sigma$ \).  
+- **Latent Space**: fully connected layers outputting ( $\mu$ ) and ( $\log\sigma^2$ ).  
+- **Reparameterization**: sampling latent ( z ) from ( $\mu$, $\sigma$ ).  
 - **Loss**: MSE reconstruction loss + capacity-controlled KL divergence.
 
 ## Code Structure / 代码结构
@@ -254,11 +254,9 @@ This function samples a latent vector `z` from a Gaussian distribution parameter
 
 It uses the reparameterization trick to allow backpropagation through the sampling process by expressing `z` as:  
 通过重参数化技巧，`z` 被表示为：  
-$$
-z = \mu + \sigma \times \epsilon
-$$
-where \( $\epsilon$ $\sim$ $\mathcal{N}(0, I)$ \), enabling gradient flow.  
-其中 \( $\epsilon \sim \mathcal{N}(0, I)$ \)，使梯度能够传播。
+$z = \mu + \sigma \times \epsilon$
+where ( $\epsilon$ $\sim$ $\mathcal{N}(0, I)$ ), enabling gradient flow.  
+其中 ( $\epsilon \sim \mathcal{N}(0, I)$ )，使梯度能够传播。
 
 This ensures the model can be trained end-to-end with stochastic sampling.  
 保证模型可以在有随机采样的情况下端到端训练
@@ -370,11 +368,10 @@ This enables learning of powerful discrete latent codes useful in many downstrea
 The Vector Quantizer module in VQ-VAE transforms continuous latent vectors into discrete codebook embeddings.  
 VQ-VAE中的向量量化器模块将连续的隐向量映射到一个离散的码本中。
 
-Given an encoder output \($z_e(x)$\), the quantizer finds the nearest embedding vector \($e_k$\) in a fixed-size codebook (${e_1, e_2, ..., e_K)}$ by minimizing Euclidean distance:  
-给定编码器输出 \($z_e(x)$\)，量化器通过欧氏距离找到码本 \($\{e_1, e_2, ..., e_K\}$\) 中最接近的向量 \($e_k$\)，公式为：
-$$
-z_q(x) = e_{k^*}, \quad k^* = \arg\min_k \| z_e(x) - e_k \|^2
-$$
+Given an encoder output $z_e(x)$, the quantizer finds the nearest embedding vector $e_k$ in a fixed-size codebook ${e_1, e_2, ..., e_K)}$ by minimizing Euclidean distance:  
+给定编码器输出 $z_e(x)$，量化器通过欧氏距离找到码本 $\{e_1, e_2, ..., e_K\}$ 中最接近的向量 $e_k$，公式为：
+
+$$z_q(x) = e_{\hat{k}} \quad \hat{k} = \arg\min_k | z_e(x) - e_k |^2$$
 
 This discretizes the latent space and enables the model to learn discrete representations.  
 这个步骤实现了潜空间的离散化，使模型能学习离散的表示。
@@ -391,18 +388,24 @@ $$
 
 Embedding loss updates the codebook vectors to be close to encoder outputs (stop gradient for encoder):  
 嵌入损失使码本向量靠近编码器输出（对编码器停止梯度传递）：
+
 $$
 \| \mathrm{sg}[z_e(x)] - e \|^2
 $$
 
-Commitment loss encourages encoder outputs to stay close to chosen embeddings (stop gradient for embeddings), controlled by \(\beta\):  
-承诺损失使编码器输出稳定接近所选码本向量（对码本停止梯度传递），\($\beta$\) 控制权重：
+Commitment loss encourages encoder outputs to stay close to chosen embeddings (stop gradient for embeddings), controlled by (\beta):  
+承诺损失使编码器输出稳定接近所选码本向量（对码本停止梯度传递），
+
+$\beta$ 控制权重：
+
 $$
 \beta \| z_e(x) - \mathrm{sg}[e] \|^2
 $$
 
-Here, \($\mathrm{sg}[\cdot]$\) denotes stop-gradient operation, which prevents gradient flow through its argument.  
-其中，\($\mathrm{sg}[\cdot]$\) 表示停止梯度操作，不对括号内变量传递梯度。
+Here, $\mathrm{sg}[\cdot]$ denotes stop-gradient operation, which prevents gradient flow through its argument.  
+其中，
+
+$\mathrm{sg}[\cdot]$ 表示停止梯度操作，不对括号内变量传递梯度。
 
 The quantization step is non-differentiable, which blocks gradients during backpropagation.  
 量化步骤不可微，阻断反向传播梯度。
@@ -432,13 +435,17 @@ https://arxiv.org/abs/1601.06759
 It generates images by predicting pixel by pixel, and the distribution of each pixel depends on the pixel already generated in the upper left corner of it.
 
 **PixelCNN** 是一种自回归（Autoregressive）生成模型，用于建模图像的联合分布。  
+
 它通过逐像素地预测来生成图像，每一个像素的分布依赖于它左上方已经生成的像素。
 
 **PixelCNN uses convolutional neural networks to model the conditional probability of each pixel. To ensure causality during generation, a mask is applied to the convolution kernels:**
+
  PixelCNN 通过 **卷积神经网络** 来建模每个像素的条件概率。为了在生成时保证因果性，需要对卷积核进行 **Mask** 操作：
 
 **– MaskedConv2d Type A:** Used in the first layer, the current pixel is not allowed to see itself.
+
  **– MaskedConv2d A 型**：用于第一层，当前像素不能看到自身。
 
 **– MaskedConv2d Type B:** Used in later layers, the current pixel is allowed to see itself because the input now comes from previous feature maps instead of raw pixels.
+
  **– MaskedConv2d B 型**：用于后续层，允许当前像素看到自身（输入来自上一层的特征）。
