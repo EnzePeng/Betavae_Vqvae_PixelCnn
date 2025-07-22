@@ -256,7 +256,7 @@ It uses the reparameterization trick to allow backpropagation through the sampli
 通过重参数化技巧，`z` 被表示为：  
 $$
 z = \mu + \sigma \times \epsilon
-$$ 
+$$
 where \( $\epsilon$ $\sim$ $\mathcal{N}(0, I)$ \), enabling gradient flow.  
 其中 \( $\epsilon \sim \mathcal{N}(0, I)$ \)，使梯度能够传播。
 
