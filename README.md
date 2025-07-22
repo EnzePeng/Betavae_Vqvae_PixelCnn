@@ -105,19 +105,19 @@ train_prior(vqvae_model, prior_model, dataset, batch_size=64, epochs=200, lr=1e-
 
 ### β-VAE Reconstruction
 
-![Generated Samples](samples\betavae_reconstruction.png)
+![Generated Samples](samples/betavae_reconstruction.png)
 
 ### β-VAE Random Samples
 
-![Generated Samples](samples\betarandom_samples.png)
+![Generated Samples](samples/betarandom_samples.png)
 
 ### VQ-VAE Reconstruction
 
-![Generated Samples](samples\vq_reconstruction.png)
+![Generated Samples](samples/vq_reconstruction.png)
 
 ### **Integrating PixelCNN with VQ‑VAE**
 
-![Generated Samples](samples\prior_samples.png)
+![Generated Samples](samples/prior_samples.png)
 
 
 
@@ -129,7 +129,7 @@ Source: https://drive.google.com/file/d/1m8-EBPgi5MRubrm6iQjafK2QMHDBMSfJ/view
 
 # Overview of Theoretical Details
 
-![Variational Autoencoder (VAE). A Variational Autoencoder (VAE) is a… | by  Jim Wang | Medium](samples\VAE.png)
+![Variational Autoencoder (VAE). A Variational Autoencoder (VAE) is a… | by  Jim Wang | Medium](samples/VAE.png)
 
 > Jim Wang | Medium
 
@@ -254,7 +254,9 @@ This function samples a latent vector `z` from a Gaussian distribution parameter
 
 It uses the reparameterization trick to allow backpropagation through the sampling process by expressing `z` as:  
 通过重参数化技巧，`z` 被表示为：  
-$$ z = \mu + \sigma \times \epsilon $$  
+$$
+z = \mu + \sigma \times \epsilon
+$$ 
 where \( $\epsilon$ $\sim$ $\mathcal{N}(0, I)$ \), enabling gradient flow.  
 其中 \( $\epsilon \sim \mathcal{N}(0, I)$ \)，使梯度能够传播。
 
@@ -417,7 +419,7 @@ This trick enables end-to-end training despite discrete quantization.
 
 # PixelCNN
 
-![image-20250722103259171](samples\pixel_cnn.png)
+![image-20250722103259171](samples/pixel_cnn.png)
 
 **Reference:**
 
